@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.env.*
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite/databases and runtime data
+*.db
+*.sqlite*
+data/*.db
+data/*.sqlite*
+data/*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Gunicorn/Flask logs
+*.log

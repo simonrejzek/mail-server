@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: cloudflare-email-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: CLOUDFLARE_API_TOKEN
+        value: Lr8ks8FmJptya7JhfvtUOemwF1Wmo_ozaguZdEk9
+      - key: CLOUDFLARE_ZONE_ID
+        value: 2a3f08c9358e5432df1067e7441b1f0f
+      - key: DOMAIN_NAME
+        value: disctools.store
+      - key: DESTINATION_EMAIL
+        value: mail.rejzek.simon@gmail.com
+      - key: API_PASSWORD
+        value: jfmao1039foqptzv
+      - key: FLASK_DEBUG
+        value: false
