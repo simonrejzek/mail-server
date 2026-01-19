@@ -3,445 +3,526 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disctools Mail Portal</title>
-  <meta name="description" content="Password-gated inbox for generating and reading temp mailboxes on disctools.store">
+  <title>Disctools Mail</title>
+  <meta name="description" content="Password-gated inbox portal for @{{ domain_name }}">
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/png" href="/axilon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <style>
-    :root {
-      --bg: #0b0c12;
-      --panel: rgba(20, 21, 30, 0.8);
-      --panel-strong: rgba(26, 28, 38, 0.9);
-      --border: rgba(255, 255, 255, 0.07);
-      --accent: #16c29a;
-      --accent-2: #42a2ff;
-      --danger: #ef4444;
+    :root{
+      --bg0:#070812;
+      --bg1:#0b0c16;
+      --panel: rgba(16, 18, 28, 0.72);
+      --panel2: rgba(18, 20, 31, 0.92);
+      --border: rgba(255,255,255,0.08);
       --text: #eef2ff;
-      --muted: #94a3b8;
-      --mono: 'JetBrains Mono', monospace;
-      --font: 'Poppins', sans-serif;
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      --radius: 14px;
+      --muted: rgba(226,232,240,0.62);
+      --muted2: rgba(226,232,240,0.44);
+      --shadow: 0 22px 70px rgba(0,0,0,0.45);
+      --shadow2: 0 14px 40px rgba(0,0,0,0.35);
+      --radius: 16px;
+      --radius2: 12px;
+      --accent: #18d5a3;
+      --accent2: #60a5fa;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font: "Poppins", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
       font-family: var(--font);
       color: var(--text);
-      background: radial-gradient(1200px at 20% 20%, rgba(22, 194, 154, 0.12), transparent),
-                  radial-gradient(900px at 80% 10%, rgba(66, 162, 255, 0.16), transparent),
-                  var(--bg);
-      min-height: 100vh;
-      line-height: 1.6;
-      overflow-x: hidden;
+      background:
+        radial-gradient(900px 600px at 18% 14%, rgba(24,213,163,0.14), transparent 60%),
+        radial-gradient(900px 600px at 85% 10%, rgba(96,165,250,0.18), transparent 55%),
+        radial-gradient(900px 700px at 60% 90%, rgba(99,102,241,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
     }
-    .noise {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 0);
+    .noise{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.25;
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 0);
       background-size: 3px 3px;
-      opacity: 0.4;
-      z-index: 0;
+      z-index:0;
     }
-    header {
+    .topbar{
       position: sticky;
       top: 0;
-      z-index: 5;
-      background: linear-gradient(90deg, rgba(20,21,30,0.9), rgba(12,13,20,0.95));
+      z-index: 10;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(90deg, rgba(12,14,22,0.88), rgba(10,12,18,0.92));
       border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-      padding: 14px 24px;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow2);
     }
-    .nav {
-      max-width: 1200px;
+    .topbar-inner{
+      max-width: 1320px;
       margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      padding: 14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
     }
-    .brand {
-      display: inline-flex;
-      align-items: center;
+    .brand{
+      display:flex;
+      align-items:center;
       gap: 12px;
-      font-weight: 700;
-      font-size: 18px;
+      min-width: 220px;
+    }
+    .mark{
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(24,213,163,0.24), rgba(96,165,250,0.18));
+      border: 1px solid rgba(255,255,255,0.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 800;
       letter-spacing: -0.5px;
-      color: var(--text);
-      text-decoration: none;
+      color: rgba(255,255,255,0.96);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      user-select:none;
     }
-    .brand img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-    }
-    .nav-actions {
-      display: flex;
-      align-items: center;
+    .brand-name{font-size: 15px; font-weight: 700; letter-spacing: -0.2px}
+    .brand-sub{font-size: 12px; color: var(--muted2)}
+    .top-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .chip {
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
       padding: 8px 12px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-      font-size: 12px;
+      background: rgba(255,255,255,0.04);
       color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 12px;
+      max-width: 520px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
-    .chip.online::before {
-      content: '';
-      width: 10px;
-      height: 10px;
+    .dot{
+      width: 10px; height: 10px;
       border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+      background: rgba(34,197,94,1);
+      box-shadow: 0 0 14px rgba(34,197,94,0.6);
     }
-    main {
-      max-width: 1200px;
+    .chip strong{color: rgba(255,255,255,0.9); font-weight: 700}
+    .btn{
+      appearance:none;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(218,232,255,0.96));
+      color: rgba(10,12,18,1);
+      font-weight: 700;
+      font-size: 13px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, opacity .2s ease, border-color .12s ease;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow: 0 16px 42px rgba(0,0,0,0.24)}
+    .btn:active{transform: translateY(0)}
+    .btn:disabled{opacity: .55; cursor:not-allowed; transform:none; box-shadow:none}
+    .btn.ghost{
+      background: rgba(255,255,255,0.05);
+      border-color: var(--border);
+      color: rgba(255,255,255,0.88);
+      box-shadow:none;
+    }
+    .btn.ghost:hover{border-color: rgba(255,255,255,0.16)}
+    .btn.danger{
+      background: linear-gradient(135deg, rgba(239,68,68,1), rgba(220,38,38,1));
+      color: #fff;
+      box-shadow: 0 12px 32px rgba(239,68,68,0.18);
+    }
+    .btn.danger:hover{box-shadow: 0 16px 42px rgba(239,68,68,0.22)}
+    .layout{
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 32px 24px 64px;
+      padding: 18px;
       position: relative;
       z-index: 1;
-    }
-    .hero {
-      background: linear-gradient(135deg, rgba(66,162,255,0.16), rgba(22,194,154,0.12));
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      width: 220px;
-      height: 220px;
-      right: -40px;
-      top: -60px;
-      background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 60%);
-      filter: blur(6px);
-    }
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      letter-spacing: -0.5px;
-    }
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-    }
-    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: 380px 1fr;
       gap: 16px;
-      margin-bottom: 16px;
     }
-    .card {
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr}
+      .brand{min-width: unset}
+      .topbar-inner{padding: 12px 14px}
+    }
+    .panel{
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px;
       box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
+      backdrop-filter: blur(12px);
     }
-    .card strong {
+    .panel-inner{padding: 14px}
+    .panel-title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 10px;
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.86);
+      text-transform: uppercase;
+    }
+    .muted{color: var(--muted); font-size: 13px}
+    .mono{font-family: var(--mono)}
+    .field{margin-top: 12px}
+    label{
+      display:block;
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: var(--muted);
       font-weight: 600;
     }
-    .card h3 {
-      margin: 0 0 6px;
-      font-size: 18px;
-      letter-spacing: -0.3px;
+    input, select{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--panel2);
+      color: rgba(255,255,255,0.92);
+      padding: 12px 12px;
+      outline: none;
+      transition: border-color .12s ease, box-shadow .12s ease;
+      font-family: var(--font);
+      font-size: 13px;
     }
-    .row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
+    input.mono{font-family: var(--mono)}
+    input:focus, select:focus{
+      border-color: rgba(24,213,163,0.45);
+      box-shadow: 0 0 0 3px rgba(24,213,163,0.12);
+    }
+    .row{
+      display:flex;
+      gap: 10px;
+      align-items:center;
       flex-wrap: wrap;
     }
-    .btn {
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid transparent;
-      font-weight: 600;
-      cursor: pointer;
-      color: #0b0c12;
-      background: linear-gradient(135deg, #fff, #d9e4ff);
-      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s;
-    }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    .btn:active { transform: translateY(0); }
-    .btn.secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border-color: var(--border);
-    }
-    .btn.danger {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: #fff;
-      border: none;
-    }
-    .btn.full { width: 100%; justify-content: center; }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
-      color: var(--muted);
-      font-size: 12px;
-      border: 1px solid var(--border);
-    }
-    .input {
-      width: 100%;
-      padding: 12px 14px;
+    .row.nowrap{flex-wrap: nowrap}
+    .suffix{
+      padding: 10px 12px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--panel-strong);
-      color: var(--text);
-      outline: none;
-      transition: border 0.12s ease, box-shadow 0.12s ease;
-      font-family: var(--font);
-    }
-    .input:focus {
-      border-color: rgba(22,194,154,0.5);
-      box-shadow: 0 0 0 3px rgba(22,194,154,0.12);
-    }
-    .mono {
-      font-family: var(--mono);
-      letter-spacing: 0.2px;
-    }
-    .email-display {
-      font-size: 20px;
-      color: var(--accent);
-      overflow-wrap: anywhere;
-    }
-    .pill {
-      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.05);
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      color: rgba(255,255,255,0.72);
       font-size: 12px;
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      white-space: nowrap;
     }
-    .address-list {
-      display: grid;
-      gap: 12px;
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-top: 12px;
     }
-    .address-item {
-      padding: 12px;
+    .hint{
+      margin-top: 10px;
+      padding: 10px 12px;
       border-radius: 12px;
-      background: var(--panel-strong);
-      border: 1px solid var(--border);
-      display: flex;
+      border: 1px solid rgba(24,213,163,0.22);
+      background: rgba(24,213,163,0.08);
+      color: rgba(24,213,163,0.72);
+      font-size: 12px;
+    }
+    .address-list, .message-list{
+      display:flex;
       flex-direction: column;
       gap: 8px;
-    }
-    .address-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 10px 0;
-    }
-    .inbox-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .search {
-      position: relative;
-      width: 100%;
-      max-width: 360px;
-    }
-    .search input {
-      padding-left: 38px;
-    }
-    .search i {
-      position: absolute;
-      top: 50%;
-      left: 12px;
-      transform: translateY(-50%);
-      color: var(--muted);
-    }
-    .email-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-    .email-card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel-strong);
-      padding: 14px;
-      position: relative;
-    }
-    .email-card h4 {
-      margin: 0 0 6px;
-      font-size: 16px;
-    }
-    .email-meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .email-content {
       margin-top: 10px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
+      max-height: 420px;
+      overflow:auto;
+      padding-right: 4px;
     }
-    .email-content iframe {
+    .address-item{
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      cursor:pointer;
+      transition: border-color .12s ease, background .12s ease;
+    }
+    .address-item:hover{border-color: rgba(255,255,255,0.16); background: rgba(255,255,255,0.04)}
+    .address-item.active{
+      border-color: rgba(24,213,163,0.35);
+      background: rgba(24,213,163,0.08);
+    }
+    .address-main{min-width: 0}
+    .address-email{
+      font-weight: 800;
+      font-size: 13px;
+      color: rgba(255,255,255,0.92);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .address-meta{margin-top: 2px; font-size: 12px; color: var(--muted2)}
+    .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink:0;
+    }
+    .pill.danger{border-color: rgba(239,68,68,0.28); background: rgba(239,68,68,0.10); color: rgba(239,68,68,0.9)}
+
+    .inbox{
+      display:flex;
+      flex-direction: column;
+      min-height: 640px;
+    }
+    .inbox-top{
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .inbox-top .panel-title{margin:0}
+    .inbox-top .row{margin-left:auto}
+    .inbox-body{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 0;
+      min-height: 0;
+      flex: 1;
+    }
+    @media (max-width: 1180px){
+      .inbox-body{grid-template-columns: 1fr}
+    }
+    .message-list{
+      padding: 12px;
+      border-right: 1px solid var(--border);
+      max-height: none;
+      height: 100%;
+      overflow:auto;
+    }
+    @media (max-width: 1180px){
+      .message-list{border-right: none; border-bottom: 1px solid var(--border); max-height: 360px}
+    }
+    .message-item{
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      cursor:pointer;
+      transition: border-color .12s ease, background .12s ease;
+      display:flex;
+      gap: 10px;
+    }
+    .message-item:hover{border-color: rgba(255,255,255,0.16); background: rgba(255,255,255,0.04)}
+    .message-item.selected{border-color: rgba(96,165,250,0.36); background: rgba(96,165,250,0.10)}
+    .message-main{flex: 1; min-width: 0}
+    .message-subject{font-weight: 800; font-size: 13px; color: rgba(255,255,255,0.92); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .message-from{margin-top: 2px; font-size: 12px; color: var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .message-preview{margin-top: 6px; font-size: 12px; color: var(--muted2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .message-time{flex-shrink:0; font-size: 12px; color: var(--muted2)}
+
+    .viewer{
+      display:flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .viewer-head{
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .viewer-subject{
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: rgba(255,255,255,0.94);
+      overflow-wrap:anywhere;
+    }
+    .viewer-meta{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .viewer-meta span{display:inline-flex; align-items:center; gap: 6px}
+    .viewer-content{
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+      background: rgba(255,255,255,0.02);
+    }
+    .viewer-frame{
       width: 100%;
-      min-height: 200px;
+      height: 100%;
       border: 0;
       background: #fff;
+      display:none;
     }
-    .empty {
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px dashed var(--border);
-      text-align: center;
+    .viewer-empty{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
       color: var(--muted);
+      font-size: 13px;
+      text-align:center;
+    }
+    .empty{
+      margin-top: 10px;
+      padding: 14px 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,0.16);
       background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 13px;
+      text-align:center;
     }
-    .gate {
+    .gate{
       position: fixed;
-      inset: 0;
-      background: rgba(6, 7, 12, 0.92);
-      backdrop-filter: blur(10px);
-      z-index: 6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      inset:0;
+      z-index: 50;
+      background: rgba(5,6,10,0.82);
+      backdrop-filter: blur(14px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
     }
-    .gate-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
+    .gate-card{
       width: 100%;
       max-width: 420px;
+      background: rgba(16,18,28,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
       box-shadow: var(--shadow);
+      padding: 18px;
     }
-    .status {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .gate-title{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      margin: 0 0 4px;
+    }
+    .gate-actions{margin-top: 12px; display:flex; gap: 10px}
+    .gate-error{
       margin-top: 10px;
+      color: rgba(239,68,68,0.95);
+      font-size: 13px;
+      display:none;
     }
-    .status.ok { color: #22c55e; border-color: rgba(34, 197, 94, 0.35); }
-    .status.bad { color: #ef4444; border-color: rgba(239, 68, 68, 0.35); }
-    .toast {
+    .toast{
       position: fixed;
-      right: 18px;
-      bottom: 18px;
-      background: var(--panel-strong);
-      border: 1px solid var(--border);
-      padding: 12px 14px;
-      border-radius: 10px;
-      box-shadow: var(--shadow);
+      right: 16px;
+      bottom: 16px;
+      z-index: 60;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(18,20,31,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: var(--shadow2);
+      color: rgba(255,255,255,0.92);
+      max-width: 320px;
       opacity: 0;
       transform: translateY(10px);
-      transition: opacity 0.15s ease, transform 0.15s ease;
-      max-width: 280px;
-      z-index: 8;
-      color: var(--text);
+      transition: opacity .15s ease, transform .15s ease;
+      pointer-events:none;
+      font-size: 13px;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    @media (max-width: 720px) {
-      .hero h1 { font-size: 26px; }
-      header { padding: 12px 18px; }
-    }
+    .toast.show{opacity: 1; transform: translateY(0)}
+    .toast.error{border-color: rgba(239,68,68,0.35)}
+    .toast.ok{border-color: rgba(24,213,163,0.35)}
   </style>
 </head>
 <body>
   <div class="noise"></div>
-  <header>
-    <div class="nav">
-      <a class="brand" href="#">
-        <img src="/logo.png" alt="Disctools Mail logo" onerror="this.style.display='none'">
-        <span>Disctools Mail</span>
-      </a>
-      <div class="nav-actions">
-        <span class="chip online"><i class="fa-solid fa-signal"></i> Portal Online</span>
-        <span class="chip"><i class="fa-solid fa-key"></i> Password required</span>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">D</div>
+        <div>
+          <div class="brand-name">Disctools Mail</div>
+          <div class="brand-sub">Portal • <span class="mono">@{{ domain_name }}</span></div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="chip" id="activeChip" title="Current inbox">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="activeChipText">All inboxes</span>
+        </div>
+        <button class="btn ghost" id="refreshInboxBtn" type="button">Refresh</button>
+        <button class="btn ghost" id="copyEmailBtn" type="button">Copy inbox</button>
+        <button class="btn danger" id="expireInboxBtn" type="button">Expire</button>
       </div>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <section class="hero">
-      <h1>Email Inbox Portal</h1>
-      <p>Generate random or custom @{{ domain_name }} addresses, set expirations, and open any inbox with the portal password.</p>
-    </section>
-
-    <div class="grid">
-      <div class="card">
-        <div class="row" style="justify-content: space-between; align-items: flex-start;">
-          <div>
-            <h3>Active inbox</h3>
-            <div class="email-display mono" id="activeEmail">No mailbox yet</div>
-            <div class="tag" style="margin-top: 10px;"><i class="fa-regular fa-clock"></i> Expires per mailbox setting</div>
+  <div class="layout">
+    <aside>
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="panel-title">Open Inbox <span class="pill mono">@{{ domain_name }}</span></div>
+          <div class="field">
+            <label for="openInboxInput">Email</label>
+            <div class="row nowrap">
+              <input id="openInboxInput" class="mono" placeholder="test@{{ domain_name }}" autocomplete="off">
+              <button class="btn" id="openInboxBtn" type="button">Open</button>
+            </div>
+            <div class="actions">
+              <button class="btn ghost" id="viewAllBtn" type="button">View all</button>
+              <button class="btn ghost" id="syncAddressesBtn" type="button">Sync addresses</button>
+            </div>
           </div>
-          <div class="pill">Domain <strong class="mono">@{{ domain_name }}</strong></div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-          <button class="btn secondary" id="refreshInboxBtn"><i class="fa-solid fa-rotate-right"></i> Refresh inbox</button>
-          <button class="btn secondary" id="copyEmailBtn"><i class="fa-solid fa-copy"></i> Copy</button>
-          <button class="btn danger" id="deleteEmailBtn"><i class="fa-solid fa-ban"></i> Expire</button>
+          <div class="hint">
+            Tip: open any inbox (e.g. <span class="mono">test@{{ domain_name }}</span>) with the portal password.
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <h3>Create mailbox</h3>
-        <p style="margin: 0 0 10px; color: var(--muted);">Random or custom handle, plus optional expiry.</p>
-        <label style="font-size: 12px; color: var(--muted);">Custom handle</label>
-        <div class="row" style="margin-top: 6px;">
-          <input class="input mono" id="customHandle" placeholder="yourname" aria-label="Custom email handle">
-          <div class="pill">@{{ domain_name }}</div>
-        </div>
-        <div class="row" style="margin: 12px 0 8px;">
-          <div style="flex: 1; min-width: 180px;">
-            <label style="font-size: 12px; color: var(--muted);">Expiry</label>
-            <select class="input" id="expirySelect">
+      <div class="panel" style="margin-top: 16px;">
+        <div class="panel-inner">
+          <div class="panel-title">Create Mailbox</div>
+          <div class="field">
+            <label for="customHandleInput">Custom handle (optional)</label>
+            <div class="row nowrap">
+              <input id="customHandleInput" class="mono" placeholder="myname" autocomplete="off">
+              <span class="suffix mono">@{{ domain_name }}</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="expirySelect">Expiry</label>
+            <select id="expirySelect">
               <option value="">Never</option>
               <option value="30m">30 minutes</option>
               <option value="1h">1 hour</option>
@@ -451,120 +532,127 @@
               <option value="7d">7 days</option>
             </select>
           </div>
-        </div>
-        <div class="row">
-          <button class="btn" id="generateRandomBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate random</button>
-          <button class="btn secondary" id="generateCustomBtn"><i class="fa-solid fa-user-pen"></i> Create custom</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="row" style="justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <div>
-          <h3>Open any inbox</h3>
-          <p style="margin: 0; color: var(--muted);">Use the password to read any inbox, or fetch every inbox at once.</p>
-        </div>
-        <div class="row" style="width: 100%; max-width: 520px;">
-          <input class="input mono" id="manualInboxInput" placeholder="someone@{{ domain_name }}" aria-label="Inbox to open">
-          <button class="btn secondary" id="openInboxBtn"><i class="fa-solid fa-inbox"></i> View inbox</button>
-          <button class="btn secondary" id="openAllBtn"><i class="fa-solid fa-layer-group"></i> View all inboxes</button>
+          <div class="actions">
+            <button class="btn" id="generateRandomBtn" type="button">Generate random</button>
+            <button class="btn ghost" id="generateCustomBtn" type="button">Create custom</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="inbox-header">
-        <div>
-          <h3>Saved addresses</h3>
-          <p style="margin: 0; color: var(--muted);">Tap to activate or expire.</p>
-        </div>
-        <button class="btn secondary" id="refreshAddressesBtn"><i class="fa-solid fa-rotate"></i> Sync</button>
-      </div>
-      <div class="address-list" id="addressList"></div>
-      <div class="empty" id="addressEmpty">No saved addresses yet.</div>
-    </div>
-
-    <div class="card">
-      <div class="inbox-header">
-        <div>
-          <h3>Inbox</h3>
-          <p style="margin: 0; color: var(--muted);" id="inboxSubtitle">No inbox loaded.</p>
-        </div>
-        <div class="search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="input" id="searchInput" placeholder="Search subject, sender, or content">
+      <div class="panel" style="margin-top: 16px;">
+        <div class="panel-inner">
+          <div class="panel-title">Saved Addresses <span class="pill" id="addressCount">0</span></div>
+          <div class="field">
+            <label for="addressSearch">Search</label>
+            <input id="addressSearch" placeholder="Filter saved addresses">
+          </div>
+          <div class="address-list" id="addressList" aria-label="Saved addresses list"></div>
+          <div class="empty" id="addressEmpty">No saved addresses yet.</div>
         </div>
       </div>
-      <div class="email-list" id="emailList"></div>
-      <div class="empty" id="inboxEmpty">Load an inbox to see messages.</div>
-    </div>
-  </main>
+    </aside>
 
-  <div class="gate" id="passwordGate">
+    <main>
+      <div class="panel inbox">
+        <div class="inbox-top">
+          <div>
+            <div class="panel-title">Inbox</div>
+            <div class="muted" id="inboxSubtitle">No inbox loaded.</div>
+          </div>
+          <div class="row">
+            <input id="messageSearch" placeholder="Search messages">
+            <button class="btn ghost" id="clearPasswordBtn" type="button">Sign out</button>
+          </div>
+        </div>
+        <div class="inbox-body">
+          <div class="message-list" id="messageList" aria-label="Message list"></div>
+          <div class="viewer">
+            <div class="viewer-head">
+              <div class="viewer-subject" id="viewerSubject">Select a message</div>
+              <div class="viewer-meta" id="viewerMeta"></div>
+            </div>
+            <div class="viewer-content">
+              <iframe class="viewer-frame" id="viewerFrame" sandbox="allow-popups" loading="lazy" title="Email content"></iframe>
+              <div class="viewer-empty" id="viewerEmpty">Select a message to view it here.</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty" id="inboxEmpty">No messages yet.</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="gate" id="gate">
     <div class="gate-card">
-      <h3 style="margin-top: 0;">Enter portal password</h3>
-      <p style="margin: 6px 0 14px; color: var(--muted);">Password required to generate and view inboxes.</p>
-      <input class="input" id="portalPasswordInput" placeholder="Portal password" autocomplete="current-password">
-      <button class="btn full" style="margin-top: 12px;" id="unlockBtn"><i class="fa-solid fa-unlock"></i> Unlock portal</button>
-      <div class="status" id="gateStatus" style="display: none;"></div>
+      <div class="gate-title">Unlock portal</div>
+      <div class="muted">Enter the shared password to view and manage inboxes.</div>
+      <div class="field">
+        <label for="gatePassword">Portal password</label>
+        <input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <div class="gate-actions">
+        <button class="btn" id="unlockBtn" type="button">Unlock</button>
+        <button class="btn ghost" id="gateClearBtn" type="button">Clear</button>
+      </div>
+      <div class="gate-error" id="gateError"></div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
+    const domain = {{ domain_name|tojson }};
+
     const state = {
       portalPassword: '',
-      domain: {{ domain_name|tojson }},
+      activeInbox: '',
       addresses: [],
-      inbox: [],
-      activeEmail: '',
-      search: ''
+      emails: [],
+      selectedId: null,
+      messageSearch: '',
+      addressSearch: ''
     };
 
-    const el = {
-      activeEmail: document.getElementById('activeEmail'),
-      manualInboxInput: document.getElementById('manualInboxInput'),
+    const els = {
+      activeChipText: document.getElementById('activeChipText'),
+      inboxSubtitle: document.getElementById('inboxSubtitle'),
+      addressCount: document.getElementById('addressCount'),
+
+      gate: document.getElementById('gate'),
+      gatePassword: document.getElementById('gatePassword'),
+      gateError: document.getElementById('gateError'),
+
+      toast: document.getElementById('toast'),
+
+      openInboxInput: document.getElementById('openInboxInput'),
+      customHandleInput: document.getElementById('customHandleInput'),
+      expirySelect: document.getElementById('expirySelect'),
+
+      addressSearch: document.getElementById('addressSearch'),
       addressList: document.getElementById('addressList'),
       addressEmpty: document.getElementById('addressEmpty'),
-      emailList: document.getElementById('emailList'),
+
+      messageSearch: document.getElementById('messageSearch'),
+      messageList: document.getElementById('messageList'),
       inboxEmpty: document.getElementById('inboxEmpty'),
-      inboxSubtitle: document.getElementById('inboxSubtitle'),
-      toast: document.getElementById('toast'),
-      passwordGate: document.getElementById('passwordGate'),
-      gateStatus: document.getElementById('gateStatus'),
-      passwordInput: document.getElementById('portalPasswordInput'),
-      searchInput: document.getElementById('searchInput'),
-      expirySelect: document.getElementById('expirySelect'),
-      customHandle: document.getElementById('customHandle')
+
+      viewerSubject: document.getElementById('viewerSubject'),
+      viewerMeta: document.getElementById('viewerMeta'),
+      viewerFrame: document.getElementById('viewerFrame'),
+      viewerEmpty: document.getElementById('viewerEmpty')
     };
 
-    function showToast(message, tone = 'info') {
-      el.toast.textContent = message;
-      el.toast.style.borderColor = tone === 'error' ? 'rgba(239,68,68,0.4)' : varAccentBorder();
-      el.toast.classList.add('show');
-      setTimeout(() => el.toast.classList.remove('show'), 2400);
+    function showToast(message, tone = 'ok') {
+      els.toast.textContent = message;
+      els.toast.className = 'toast ' + (tone === 'error' ? 'error' : 'ok');
+      els.toast.classList.add('show');
+      window.clearTimeout(showToast._t);
+      showToast._t = window.setTimeout(() => els.toast.classList.remove('show'), 2600);
     }
 
-    function varAccentBorder() {
-      return 'rgba(22,194,154,0.4)';
-    }
-
-    function formatDate(value) {
-      if (!value) return 'never';
-      const d = new Date(value);
-      return isNaN(d.getTime()) ? value : d.toLocaleString();
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-    }
-
-    function setGateStatus(text, ok = true) {
-      el.gateStatus.textContent = text;
-      el.gateStatus.style.display = 'flex';
-      el.gateStatus.className = 'status ' + (ok ? 'ok' : 'bad');
+    function setGateError(message) {
+      els.gateError.textContent = message;
+      els.gateError.style.display = message ? 'block' : 'none';
     }
 
     async function apiFetch(url, options = {}) {
@@ -577,291 +665,387 @@
       let data = {};
       try { data = await res.json(); } catch (err) {}
       if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          throw new Error('auth');
-        }
+        if (res.status === 401 || res.status === 403) throw new Error('auth');
         throw new Error(data.error || 'Request failed');
       }
       return data;
     }
 
-    function setActiveEmail(email) {
-      state.activeEmail = email || '';
-      el.activeEmail.textContent = email || 'No mailbox yet';
-      el.manualInboxInput.value = email || '';
+    function formatDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      return isNaN(d.getTime()) ? value : d.toLocaleString();
     }
 
-    function renderAddresses() {
-      el.addressList.innerHTML = '';
-      if (!state.addresses.length) {
-        el.addressEmpty.style.display = 'block';
-        return;
-      }
-      el.addressEmpty.style.display = 'none';
-      state.addresses.forEach(addr => {
-        const card = document.createElement('div');
-        card.className = 'address-item';
-        card.innerHTML = `
-          <div class="row" style="justify-content: space-between; align-items: flex-start;">
-            <div>
-              <div class="mono" style="font-weight: 600; color: var(--accent);">${addr.email}</div>
-              <div style="color: var(--muted); font-size: 13px;">Created ${formatDate(addr.created_at)}</div>
-            </div>
-            <span class="pill">${addr.expires_at ? ('Expires ' + formatDate(addr.expires_at)) : 'No expiry'}</span>
-          </div>
-          <div class="address-actions">
-            <button class="btn secondary" data-email="${addr.email}" data-action="activate"><i class="fa-solid fa-bullseye"></i> Activate</button>
-            <button class="btn danger" data-email="${addr.email}" data-action="delete"><i class="fa-solid fa-ban"></i> Expire</button>
-          </div>
-        `;
-        card.querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const email = btn.getAttribute('data-email');
-            const action = btn.getAttribute('data-action');
-            if (action === 'activate') {
-              setActiveEmail(email);
-              await loadInbox(email);
-            } else {
-              await expireEmail(email);
-            }
-          });
-        });
-        el.addressList.appendChild(card);
-      });
+    function formatShortDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value;
+      return d.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     }
 
-    function varMono() { return "'JetBrains Mono', monospace"; }
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function varMono() { return "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"; }
     function varSans() { return "-apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif"; }
 
     function looksLikeRawEmail(value) {
       if (!value) return false;
+      const v = String(value);
       const indicators = ['MIME-Version:', 'Content-Type:', 'Received:', 'DKIM-Signature:', 'ARC-'];
       let hits = 0;
-      indicators.forEach(indicator => { if (value.includes(indicator)) hits += 1; });
+      for (const indicator of indicators) {
+        if (v.includes(indicator)) hits += 1;
+      }
       return hits >= 2;
     }
 
-    function tryExtractPlainTextFromRaw(raw) {
+    function escapeRegExp(value) {
+      return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function normalizeRawForParsing(raw) {
       if (!raw) return '';
-      const textMatch = raw.match(/Content-Type:\s*text\/plain[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|\r?\nContent-Type:|$)/i);
-      if (textMatch && textMatch[1]) {
-        return textMatch[1].trim();
+      const v = String(raw);
+      const newlineCount = (v.match(/\\n/g) || []).length;
+      if (newlineCount >= 3) return v;
+      // Some payloads might end up flattened; re-insert a few breaks before obvious tokens.
+      return v
+        .replace(/\\s+(--[0-9A-Za-z]{6,})/g, '\\n$1')
+        .replace(/\\s+(Content-Type:)/g, '\\n$1')
+        .replace(/\\s+(MIME-Version:)/g, '\\n$1')
+        .replace(/\\s+(From:)/g, '\\n$1')
+        .replace(/\\s+(To:)/g, '\\n$1')
+        .replace(/\\s+(Subject:)/g, '\\n$1');
+    }
+
+    function extractPartByBoundary(raw, contentType) {
+      const normalized = normalizeRawForParsing(raw);
+      const boundaryMatch = normalized.match(/boundary="?([^"\\s;]+)"?/i);
+      if (!boundaryMatch) return '';
+      const boundary = boundaryMatch[1];
+      const parts = normalized.split(new RegExp(`--${escapeRegExp(boundary)}`));
+      for (const part of parts) {
+        if (new RegExp(`Content-Type:\\\\s*${escapeRegExp(contentType)}`, 'i').test(part)) {
+          const split = part.split(/\\r?\\n\\r?\\n/);
+          if (split.length > 1) return split.slice(1).join('\\n\\n').trim();
+        }
       }
-      const parts = raw.split(/\r?\n\r?\n/);
-      if (parts.length > 1) {
-        return parts.slice(1).join('\n\n').trim();
+      return '';
+    }
+
+    function extractPlainTextFromRaw(raw) {
+      if (!raw) return '';
+      const normalized = normalizeRawForParsing(raw);
+      const boundaryText = extractPartByBoundary(normalized, 'text/plain');
+      if (boundaryText) return boundaryText;
+      const textMatch = normalized.match(/Content-Type:\\s*text\\/plain[\\s\\S]*?\\r?\\n\\r?\\n([\\s\\S]*?)(?:\\r?\\n--|\\r?\\nContent-Type:|$)/i);
+      if (textMatch && textMatch[1]) return textMatch[1].trim();
+      const headerSplit = normalized.split(/\\r?\\n\\r?\\n/);
+      if (headerSplit.length > 1) return headerSplit.slice(1).join('\\n\\n').trim();
+      return normalized.trim();
+    }
+
+    function extractHtmlFromRaw(raw) {
+      if (!raw) return '';
+      const normalized = normalizeRawForParsing(raw);
+      const boundaryHtml = extractPartByBoundary(normalized, 'text/html');
+      if (boundaryHtml) return boundaryHtml;
+      const htmlMatch = normalized.match(/Content-Type:\\s*text\\/html[\\s\\S]*?\\r?\\n\\r?\\n([\\s\\S]*?)(?:\\r?\\n--|\\r?\\nContent-Type:|$)/i);
+      if (htmlMatch && htmlMatch[1]) return htmlMatch[1].trim();
+      return '';
+    }
+
+    function getDisplayText(email) {
+      let text = (email.text || '').toString();
+      if (looksLikeRawEmail(text)) {
+        text = extractPlainTextFromRaw(text);
       }
-      return raw.trim();
+      return text;
+    }
+
+    function getPreview(email) {
+      const text = getDisplayText(email).replace(/\\s+/g, ' ').trim();
+      if (text) return text.slice(0, 140);
+      const html = (email.html || '').toString();
+      if (!html) return '';
+      return html.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 140);
     }
 
     function buildEmailSrcdoc(email) {
       const baseCss = `
         html, body { margin: 0; padding: 0; background: #ffffff; }
         body { font-family: ${varSans()}; color: #111827; padding: 16px; line-height: 1.55; }
-        pre { white-space: pre-wrap; word-break: break-word; font-family: ${varMono()}; font-size: 13px; line-height: 1.5; }
+        pre { white-space: pre-wrap; word-break: break-word; font-family: ${varMono()}; font-size: 13px; line-height: 1.55; }
         a { color: #2563eb; }
         img { max-width: 100%; height: auto; }
       `.trim();
 
-      const html = (email.html || '').trim();
-      let text = (email.text || '').toString();
-      if (!html && looksLikeRawEmail(text)) {
-        text = tryExtractPlainTextFromRaw(text);
+      let html = (email.html || '').toString().trim();
+      let text = getDisplayText(email);
+
+      // Fallback: if backend didn't extract HTML but raw is in text, try to pull HTML too.
+      if (!html && looksLikeRawEmail((email.text || '').toString())) {
+        html = extractHtmlFromRaw((email.text || '').toString()) || '';
       }
 
       if (html) {
-        if (/<html[\s>]/i.test(html)) {
-          return html;
-        }
-        return `<!doctype html><html><head><meta charset="utf-8"><style>${baseCss}</style></head><body>${html}</body></html>`;
+        if (/<html[\\s>]/i.test(html)) return html;
+        return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${baseCss}</style></head><body>${html}</body></html>`;
       }
 
-      const safeText = escapeHtml(text || 'No content');
-      return `<!doctype html><html><head><meta charset="utf-8"><style>${baseCss}</style></head><body><pre>${safeText}</pre></body></html>`;
+      const safe = escapeHtml(text || 'No content');
+      return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${baseCss}</style></head><body><pre>${safe}</pre></body></html>`;
     }
 
-    function renderInbox() {
-      el.emailList.innerHTML = '';
-      const search = state.search.toLowerCase();
-      const filtered = state.inbox.filter(item => {
-        if (!search) return true;
-        const hay = [item.subject, item.from, item.to, item.text, item.html].join(' ').toLowerCase();
-        return hay.includes(search);
+    function setActiveInbox(email) {
+      state.activeInbox = email || '';
+      els.activeChipText.textContent = state.activeInbox ? state.activeInbox : 'All inboxes';
+      els.openInboxInput.value = state.activeInbox || '';
+    }
+
+    function renderAddresses() {
+      const q = (state.addressSearch || '').trim().toLowerCase();
+      const filtered = state.addresses.filter(a => !q || (a.email || '').toLowerCase().includes(q));
+
+      els.addressCount.textContent = String(filtered.length);
+      els.addressList.innerHTML = '';
+      els.addressEmpty.style.display = filtered.length ? 'none' : 'block';
+
+      for (const addr of filtered) {
+        const item = document.createElement('div');
+        item.className = 'address-item' + (addr.email === state.activeInbox ? ' active' : '');
+        item.innerHTML = `
+          <div class="address-main">
+            <div class="address-email mono">${escapeHtml(addr.email)}</div>
+            <div class="address-meta">${addr.expires_at ? ('Expires ' + escapeHtml(formatDate(addr.expires_at))) : 'No expiry'}</div>
+          </div>
+          <div class="pill ${addr.expires_at ? 'danger' : ''}">${addr.expires_at ? 'expiring' : 'saved'}</div>
+        `;
+        item.addEventListener('click', async () => {
+          setActiveInbox(addr.email);
+          await loadInbox();
+        });
+        els.addressList.appendChild(item);
+      }
+    }
+
+    function renderMessageList() {
+      const q = (state.messageSearch || '').trim().toLowerCase();
+      const list = state.emails.filter(m => {
+        if (!q) return true;
+        const hay = [m.subject, m.from, m.to, getPreview(m)].join(' ').toLowerCase();
+        return hay.includes(q);
       });
-      el.inboxSubtitle.textContent = state.activeEmail
-        ? `Showing ${filtered.length} message(s) for ${state.activeEmail}`
-        : `Showing ${filtered.length} message(s) from all inboxes`;
-      if (!filtered.length) {
-        el.inboxEmpty.style.display = 'block';
+
+      els.messageList.innerHTML = '';
+      els.inboxEmpty.style.display = list.length ? 'none' : 'block';
+
+      for (const m of list) {
+        const item = document.createElement('div');
+        item.className = 'message-item' + (m.id === state.selectedId ? ' selected' : '');
+        item.innerHTML = `
+          <div class="message-main">
+            <div class="message-subject">${escapeHtml(m.subject || '(No subject)')}</div>
+            <div class="message-from">${escapeHtml(m.from || 'Unknown sender')} → <span class="mono">${escapeHtml(m.to || '')}</span></div>
+            <div class="message-preview">${escapeHtml(getPreview(m) || '')}</div>
+          </div>
+          <div class="message-time">${escapeHtml(formatShortDate(m.received_at) || '')}</div>
+        `;
+        item.addEventListener('click', () => {
+          state.selectedId = m.id;
+          renderMessageList();
+          renderViewer();
+        });
+        els.messageList.appendChild(item);
+      }
+    }
+
+    function renderViewer() {
+      const selected = state.emails.find(m => m.id === state.selectedId);
+      if (!selected) {
+        els.viewerSubject.textContent = 'Select a message';
+        els.viewerMeta.innerHTML = '';
+        els.viewerFrame.style.display = 'none';
+        els.viewerEmpty.style.display = 'flex';
+        els.viewerFrame.removeAttribute('srcdoc');
         return;
       }
-      el.inboxEmpty.style.display = 'none';
-      filtered.forEach(email => {
-        const card = document.createElement('div');
-        card.className = 'email-card';
-        card.innerHTML = `
-          <h4>${email.subject || '(No subject)'}</h4>
-          <div class="email-meta">
-            <span><i class="fa-regular fa-user"></i> ${email.from || 'Unknown sender'}</span>
-            <span><i class="fa-regular fa-envelope"></i> ${email.to}</span>
-            <span><i class="fa-regular fa-clock"></i> ${formatDate(email.received_at)}</span>
-          </div>
-          <div class="divider"></div>
-          <div class="email-content">
-            <iframe sandbox="" loading="lazy"></iframe>
-          </div>
-        `;
-        const frame = card.querySelector('iframe');
-        frame.srcdoc = buildEmailSrcdoc(email);
-        el.emailList.appendChild(card);
-      });
-    }
-
-    async function loadInbox(emailFilter = '') {
-      try {
-        const params = new URLSearchParams();
-        if (emailFilter) params.append('email', emailFilter);
-        const data = await apiFetch('/portal/api/inbox' + (params.toString() ? '?' + params.toString() : ''));
-        state.inbox = data.emails || [];
-        renderInbox();
-      } catch (err) {
-        if (err.message === 'auth') {
-          showGate();
-          throw err;
-        }
-        showToast(err.message || 'Failed to load inbox', 'error');
-        throw err;
-      }
+      els.viewerSubject.textContent = selected.subject || '(No subject)';
+      els.viewerMeta.innerHTML = `
+        <span><strong>From</strong> ${escapeHtml(selected.from || 'Unknown')}</span>
+        <span><strong>To</strong> <span class="mono">${escapeHtml(selected.to || '')}</span></span>
+        <span><strong>Date</strong> ${escapeHtml(formatDate(selected.received_at) || '')}</span>
+      `;
+      els.viewerFrame.style.display = 'block';
+      els.viewerEmpty.style.display = 'none';
+      els.viewerFrame.srcdoc = buildEmailSrcdoc(selected);
     }
 
     async function refreshAddresses() {
-      try {
-        const data = await apiFetch('/portal/api/addresses');
-        state.addresses = data.addresses || [];
-        if (!state.activeEmail && state.addresses.length) {
-          setActiveEmail(state.addresses[0].email);
-        }
-        renderAddresses();
-      } catch (err) {
-        if (err.message === 'auth') {
-          showGate();
-          throw err;
-        }
-        showToast(err.message || 'Failed to load addresses', 'error');
-        throw err;
-      }
+      const data = await apiFetch('/portal/api/addresses');
+      state.addresses = data.addresses || [];
+      renderAddresses();
     }
 
-    async function generateMailbox(custom = false) {
-      const body = { random: !custom };
-      const expiry = el.expirySelect.value;
+    async function loadInbox() {
+      const params = new URLSearchParams();
+      if (state.activeInbox) params.append('email', state.activeInbox);
+      const url = '/portal/api/inbox' + (params.toString() ? '?' + params.toString() : '');
+      const data = await apiFetch(url);
+      state.emails = data.emails || [];
+      els.inboxSubtitle.textContent = state.activeInbox
+        ? `Showing ${state.emails.length} message(s) for ${state.activeInbox}`
+        : `Showing ${state.emails.length} message(s) from all inboxes`;
+      if (state.emails.length && !state.emails.some(m => m.id === state.selectedId)) {
+        state.selectedId = state.emails[0].id;
+      }
+      renderMessageList();
+      renderViewer();
+    }
+
+    async function generateMailbox(mode) {
+      const expiry = els.expirySelect.value || '';
+      const body = {};
       if (expiry) body.expiry = expiry;
-      if (custom) body.local_part = el.customHandle.value.trim();
-      try {
-        const data = await apiFetch('/portal/api/generate', {
-          method: 'POST',
-          body: JSON.stringify(body)
-        });
-        if (data.email) {
-          setActiveEmail(data.email);
-          showToast('Mailbox ready: ' + data.email);
-          await refreshAddresses();
-          await loadInbox(data.email);
-        }
-      } catch (err) {
-        if (err.message === 'auth') { showGate(); return; }
-        showToast(err.message || 'Failed to generate email', 'error');
+      if (mode === 'random') {
+        body.random = true;
+      } else {
+        body.local_part = els.customHandleInput.value.trim();
       }
-    }
-
-    async function expireEmail(email) {
-      if (!email) return;
-      try {
-        await apiFetch('/portal/api/addresses/' + encodeURIComponent(email), { method: 'DELETE' });
-        if (state.activeEmail === email) setActiveEmail('');
+      const data = await apiFetch('/portal/api/generate', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      if (data.email) {
+        setActiveInbox(data.email);
         await refreshAddresses();
-        await loadInbox(state.activeEmail);
-        showToast('Expired ' + email);
-      } catch (err) {
-        if (err.message === 'auth') { showGate(); return; }
-        showToast(err.message || 'Failed to expire email', 'error');
+        await loadInbox();
+        showToast('Mailbox ready: ' + data.email, 'ok');
       }
     }
 
-    async function unlockPortal() {
-      const password = el.passwordInput.value.trim();
-      if (!password) {
-        setGateStatus('Password required', false);
+    async function expireActiveInbox() {
+      if (!state.activeInbox) {
+        showToast('No active inbox selected', 'error');
         return;
       }
-      state.portalPassword = password;
+      await apiFetch('/portal/api/addresses/' + encodeURIComponent(state.activeInbox), { method: 'DELETE' });
+      showToast('Expired: ' + state.activeInbox, 'ok');
+      setActiveInbox('');
+      state.selectedId = null;
+      await refreshAddresses();
+      await loadInbox();
+    }
+
+    async function unlock() {
+      const pw = els.gatePassword.value.trim();
+      if (!pw) {
+        setGateError('Password required.');
+        return;
+      }
+      state.portalPassword = pw;
+      setGateError('');
       try {
         await refreshAddresses();
-        await loadInbox(state.activeEmail);
-        localStorage.setItem('portalPassword', password);
-        el.passwordGate.style.display = 'none';
-        setGateStatus('Unlocked', true);
-        showToast('Portal unlocked');
+        await loadInbox();
+        localStorage.setItem('portalPassword', pw);
+        els.gate.style.display = 'none';
+        showToast('Unlocked', 'ok');
       } catch (err) {
-        setGateStatus('Invalid password or API unavailable', false);
+        if (String(err.message) === 'auth') {
+          setGateError('Invalid password.');
+        } else {
+          setGateError('Could not reach the API. Try again.');
+        }
         state.portalPassword = '';
       }
     }
 
-    function showGate() {
-      el.passwordGate.style.display = 'flex';
-      setGateStatus('Enter the shared password to continue', true);
+    function signOut() {
+      localStorage.removeItem('portalPassword');
+      state.portalPassword = '';
+      els.gatePassword.value = '';
+      els.gate.style.display = 'flex';
+      showToast('Signed out', 'ok');
     }
 
-    function copyEmail() {
-      if (!state.activeEmail) return;
-      navigator.clipboard.writeText(state.activeEmail).then(() => showToast('Copied ' + state.activeEmail));
+    async function copyActiveInbox() {
+      if (!state.activeInbox) {
+        showToast('No active inbox selected', 'error');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(state.activeInbox);
+        showToast('Copied: ' + state.activeInbox, 'ok');
+      } catch (err) {
+        showToast('Copy failed (browser blocked).', 'error');
+      }
     }
 
     function initEvents() {
-      document.getElementById('unlockBtn').addEventListener('click', unlockPortal);
-      document.getElementById('generateRandomBtn').addEventListener('click', () => generateMailbox(false));
-      document.getElementById('generateCustomBtn').addEventListener('click', () => generateMailbox(true));
-      document.getElementById('refreshInboxBtn').addEventListener('click', async () => {
-        try { await loadInbox(state.activeEmail); } catch (err) {}
+      document.getElementById('unlockBtn').addEventListener('click', unlock);
+      document.getElementById('gateClearBtn').addEventListener('click', () => { els.gatePassword.value = ''; setGateError(''); });
+      els.gatePassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlock(); });
+
+      document.getElementById('syncAddressesBtn').addEventListener('click', async () => {
+        try { await refreshAddresses(); showToast('Addresses synced', 'ok'); } catch (err) { showToast('Failed to sync addresses', 'error'); }
       });
-      document.getElementById('copyEmailBtn').addEventListener('click', copyEmail);
-      document.getElementById('deleteEmailBtn').addEventListener('click', () => expireEmail(state.activeEmail));
-      document.getElementById('refreshAddressesBtn').addEventListener('click', async () => {
-        try { await refreshAddresses(); } catch (err) {}
+
+      document.getElementById('viewAllBtn').addEventListener('click', async () => {
+        setActiveInbox('');
+        state.selectedId = null;
+        try { await loadInbox(); } catch (err) { if (String(err.message) === 'auth') signOut(); }
       });
+
       document.getElementById('openInboxBtn').addEventListener('click', async () => {
-        const target = el.manualInboxInput.value.trim();
-        if (target) {
-          setActiveEmail(target);
-          try { await loadInbox(target); } catch (err) {}
-        }
+        const email = els.openInboxInput.value.trim();
+        if (!email) return;
+        setActiveInbox(email);
+        state.selectedId = null;
+        try { await loadInbox(); } catch (err) { if (String(err.message) === 'auth') signOut(); }
       });
-      document.getElementById('openAllBtn').addEventListener('click', async () => {
-        setActiveEmail('');
-        try { await loadInbox(''); } catch (err) {}
+
+      document.getElementById('generateRandomBtn').addEventListener('click', async () => {
+        try { await generateMailbox('random'); } catch (err) { if (String(err.message) === 'auth') signOut(); else showToast(err.message || 'Generate failed', 'error'); }
       });
-      el.searchInput.addEventListener('input', (e) => {
-        state.search = e.target.value || '';
-        renderInbox();
+      document.getElementById('generateCustomBtn').addEventListener('click', async () => {
+        try { await generateMailbox('custom'); } catch (err) { if (String(err.message) === 'auth') signOut(); else showToast(err.message || 'Create failed', 'error'); }
       });
-      el.passwordInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') unlockPortal();
+
+      document.getElementById('refreshInboxBtn').addEventListener('click', async () => {
+        try { await loadInbox(); showToast('Inbox refreshed', 'ok'); } catch (err) { if (String(err.message) === 'auth') signOut(); else showToast('Failed to refresh inbox', 'error'); }
       });
+
+      document.getElementById('copyEmailBtn').addEventListener('click', copyActiveInbox);
+      document.getElementById('expireInboxBtn').addEventListener('click', async () => {
+        try { await expireActiveInbox(); } catch (err) { if (String(err.message) === 'auth') signOut(); else showToast('Expire failed', 'error'); }
+      });
+
+      document.getElementById('clearPasswordBtn').addEventListener('click', signOut);
+
+      els.messageSearch.addEventListener('input', (e) => { state.messageSearch = e.target.value || ''; renderMessageList(); });
+      els.addressSearch.addEventListener('input', (e) => { state.addressSearch = e.target.value || ''; renderAddresses(); });
     }
 
-    function bootstrap() {
+    async function bootstrap() {
+      initEvents();
       const stored = localStorage.getItem('portalPassword');
       if (stored) {
         state.portalPassword = stored;
-        refreshAddresses().then(() => {
-          el.passwordGate.style.display = 'none';
-          loadInbox(state.activeEmail);
-        }).catch(() => showGate());
+        els.gate.style.display = 'none';
+        try {
+          await refreshAddresses();
+          await loadInbox();
+        } catch (err) {
+          els.gate.style.display = 'flex';
+          state.portalPassword = '';
+        }
       } else {
-        showGate();
+        els.gate.style.display = 'flex';
       }
-      initEvents();
     }
 
     bootstrap();

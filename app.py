@@ -271,6 +271,31 @@ def parse_raw_email(raw_email_text):
         elif content_type == 'text/plain':
             text_body = content
 
+    # Sometimes parsing yields the full RFC822 message as a single body; treat that as unparsed.
+    if text_body and looks_like_raw_email(text_body):
+        text_body = ''
+    if html_body and looks_like_raw_email(html_body):
+        html_body = ''
+
+    if not html_body and not text_body:
+        try:
+            text_match = re.search(
+                r'Content-Type:\s*text/plain[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|\r?\nContent-Type:|$)',
+                raw_email_text,
+                flags=re.IGNORECASE,
+            )
+            if text_match and text_match.group(1):
+                text_body = text_match.group(1).strip()
+            html_match = re.search(
+                r'Content-Type:\s*text/html[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|\r?\nContent-Type:|$)',
+                raw_email_text,
+                flags=re.IGNORECASE,
+            )
+            if html_match and html_match.group(1):
+                html_body = html_match.group(1).strip()
+        except Exception:
+            pass
+
     return {
         'from': parsed_from,
         'to': parsed_to,
