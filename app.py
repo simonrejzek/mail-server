@@ -279,6 +279,28 @@ def parse_raw_email(raw_email_text):
         'text': text_body or '',
     }
 
+def normalize_stored_email_fields(to_email, from_email, subject, html, text, raw):
+    """
+    Normalize stored fields for display: when raw RFC822 text was stored in `text`,
+    extract the actual message bodies.
+    """
+    raw_source = raw or ''
+    if not raw_source and looks_like_raw_email(text):
+        raw_source = text
+    if not raw_source:
+        return from_email, subject, html, text
+
+    parsed = parse_raw_email(raw_source)
+    if parsed.get('from'):
+        from_email = parsed['from']
+    if parsed.get('subject'):
+        subject = parsed['subject']
+    if not html and parsed.get('html'):
+        html = parsed['html']
+    if (not text or looks_like_raw_email(text)) and parsed.get('text'):
+        text = parsed['text']
+    return from_email, subject, html, text
+
 def normalize_local_part(custom_local_part, domain_name):
     """Validate and normalize a custom local-part for the configured domain."""
     if not custom_local_part or not str(custom_local_part).strip():
@@ -663,7 +685,7 @@ def portal_inbox():
         cursor = conn.cursor()
         if email_filter:
             cursor.execute('''
-                SELECT id, to_email, from_email, subject, html, text, received_at
+                SELECT id, to_email, from_email, subject, html, text, raw, received_at
                 FROM received_emails
                 WHERE to_email = ?
                 ORDER BY received_at DESC
@@ -671,7 +693,7 @@ def portal_inbox():
             ''', (email_filter, limit_value))
         else:
             cursor.execute('''
-                SELECT id, to_email, from_email, subject, html, text, received_at
+                SELECT id, to_email, from_email, subject, html, text, raw, received_at
                 FROM received_emails
                 ORDER BY received_at DESC
                 LIMIT ?
@@ -679,14 +701,17 @@ def portal_inbox():
         rows = cursor.fetchall()
         emails = []
         for row in rows:
+            normalized_from, normalized_subject, normalized_html, normalized_text = normalize_stored_email_fields(
+                row[1], row[2], row[3], row[4], row[5], row[6]
+            )
             emails.append({
                 'id': row[0],
                 'to': row[1],
-                'from': row[2],
-                'subject': row[3],
-                'html': row[4],
-                'text': row[5],
-                'received_at': row[6]
+                'from': normalized_from,
+                'subject': normalized_subject,
+                'html': normalized_html,
+                'text': normalized_text,
+                'received_at': row[7]
             })
         return jsonify({'emails': emails, 'count': len(emails)}), 200
     except Exception as e:
@@ -820,7 +845,7 @@ def get_emails(email_address):
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT id, from_email, subject, html, text, received_at
+            SELECT id, from_email, subject, html, text, raw, received_at
             FROM received_emails
             WHERE to_email = ?
             ORDER BY received_at DESC
@@ -831,13 +856,16 @@ def get_emails(email_address):
         
         emails = []
         for row in rows:
+            normalized_from, normalized_subject, normalized_html, normalized_text = normalize_stored_email_fields(
+                email_address, row[1], row[2], row[3], row[4], row[5]
+            )
             emails.append({
                 'id': row[0],
-                'from': row[1],
-                'subject': row[2],
-                'html': row[3],
-                'text': row[4],
-                'received_at': row[5]
+                'from': normalized_from,
+                'subject': normalized_subject,
+                'html': normalized_html,
+                'text': normalized_text,
+                'received_at': row[6]
             })
         
         logger.info(f"Found {len(emails)} emails for {email_address}")
