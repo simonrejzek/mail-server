@@ -9,6 +9,8 @@ from pathlib import Path
 import re
 import atexit
 from functools import wraps
+from email import policy
+from email.parser import BytesParser
 
 from flask import Flask, jsonify, render_template, request
 from dotenv import load_dotenv
@@ -132,12 +134,50 @@ def init_db():
                 subject TEXT,
                 html TEXT,
                 text TEXT,
+                raw TEXT,
                 received_at TEXT NOT NULL
             )
         ''')
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_to_email ON received_emails (to_email)
         ''')
+        # Lightweight migration for older databases (add 'raw' column if missing)
+        cursor.execute("PRAGMA table_info(received_emails)")
+        existing_columns = {row[1] for row in cursor.fetchall()}
+        if 'raw' not in existing_columns:
+            cursor.execute("ALTER TABLE received_emails ADD COLUMN raw TEXT")
+            logger.info("DB migration: added received_emails.raw column")
+
+        # Best-effort backfill: if older rows stored the full raw message in 'text',
+        # extract a readable body and preserve the original as 'raw'.
+        cursor.execute('''
+            SELECT id, from_email, subject, html, text, raw
+            FROM received_emails
+            WHERE (raw IS NULL OR raw = '')
+              AND text IS NOT NULL
+              AND LENGTH(text) > 200
+            ORDER BY id DESC
+            LIMIT 500
+        ''')
+        candidates = cursor.fetchall()
+        updated_count = 0
+        for row_id, from_email, subject, html, text, raw in candidates:
+            if not looks_like_raw_email(text):
+                continue
+            parsed = parse_raw_email(text)
+            new_html = html or parsed.get('html', '')
+            new_text = parsed.get('text', '') or ''
+            new_from = parsed.get('from') or from_email
+            new_subject = parsed.get('subject') or subject
+            if new_text or new_html:
+                cursor.execute('''
+                    UPDATE received_emails
+                    SET from_email = ?, subject = ?, html = ?, text = ?, raw = ?
+                    WHERE id = ?
+                ''', (new_from, new_subject, new_html, new_text, text, row_id))
+                updated_count += 1
+        if updated_count:
+            logger.info(f"DB backfill: normalized {updated_count} received_emails rows")
         conn.commit()
         conn.close()
         logger.info(f"Database initialized successfully at internal path {DATABASE_PATH}")
@@ -168,6 +208,76 @@ def parse_expiry(expiry_str):
     if delta < min_delta:
         raise InvalidExpiryError(f"Minimum expiry duration is {MINIMUM_EXPIRY_MINUTES} minutes. Requested: '{expiry_str}'")
     return now + delta
+
+def looks_like_raw_email(value):
+    if not value or not isinstance(value, str):
+        return False
+    indicators = ('MIME-Version:', 'Content-Type:', 'Received:', 'DKIM-Signature:', 'ARC-')
+    matches = sum(1 for indicator in indicators if indicator in value)
+    return matches >= 2
+
+def _safe_get_part_content(part):
+    try:
+        content = part.get_content()
+        if content is None:
+            return ''
+        if isinstance(content, (bytes, bytearray)):
+            charset = part.get_content_charset() or 'utf-8'
+            return content.decode(charset, errors='replace')
+        return str(content)
+    except Exception:
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            return ''
+        if isinstance(payload, (bytes, bytearray)):
+            charset = part.get_content_charset() or 'utf-8'
+            return payload.decode(charset, errors='replace')
+        return str(payload)
+
+def parse_raw_email(raw_email_text):
+    """
+    Parse a raw RFC822 email string and extract headers + best-effort bodies.
+    Returns dict: {from, to, subject, html, text}.
+    """
+    if not raw_email_text:
+        return {'from': '', 'to': '', 'subject': '', 'html': '', 'text': ''}
+    raw_bytes = raw_email_text.encode('utf-8', errors='replace')
+    msg = BytesParser(policy=policy.default).parsebytes(raw_bytes)
+
+    parsed_from = str(msg.get('from', '') or '')
+    parsed_to = str(msg.get('to', '') or '')
+    parsed_subject = str(msg.get('subject', '') or '')
+
+    html_body = ''
+    text_body = ''
+
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.is_multipart():
+                continue
+            if part.get_content_disposition() == 'attachment':
+                continue
+            content_type = part.get_content_type()
+            content = _safe_get_part_content(part)
+            if content_type == 'text/html' and not html_body:
+                html_body = content
+            elif content_type == 'text/plain' and not text_body:
+                text_body = content
+    else:
+        content_type = msg.get_content_type()
+        content = _safe_get_part_content(msg)
+        if content_type == 'text/html':
+            html_body = content
+        elif content_type == 'text/plain':
+            text_body = content
+
+    return {
+        'from': parsed_from,
+        'to': parsed_to,
+        'subject': parsed_subject,
+        'html': html_body or '',
+        'text': text_body or '',
+    }
 
 def normalize_local_part(custom_local_part, domain_name):
     """Validate and normalize a custom local-part for the configured domain."""
@@ -639,23 +749,48 @@ def inbound_email_webhook():
     """
     logger.info(f"Received inbound email webhook from {request.remote_addr}")
     try:
-        email_data = request.get_json()
+        email_data = request.get_json(silent=True) or {}
         
         to_email = email_data.get('to', '')
         from_email = email_data.get('from', '')
         subject = email_data.get('subject', '')
         html = email_data.get('html', '')
         text = email_data.get('text', '')
-        
+        raw = email_data.get('raw', '')
+
+        parsed = None
+        if raw:
+            parsed = parse_raw_email(raw)
+
+        # Prefer parsed headers/bodies when available (worker may send raw)
+        if parsed:
+            if parsed.get('from'):
+                from_email = parsed['from']
+            if parsed.get('subject'):
+                subject = parsed['subject']
+            if not html and parsed.get('html'):
+                html = parsed['html']
+            if (not text or looks_like_raw_email(text)) and parsed.get('text'):
+                text = parsed['text']
+
+        # If content extraction failed upstream, store the raw as well
+        if not raw and looks_like_raw_email(text):
+            raw = text
+            parsed_from_text = parse_raw_email(raw)
+            if not html and parsed_from_text.get('html'):
+                html = parsed_from_text['html']
+            if parsed_from_text.get('text'):
+                text = parsed_from_text['text']
+
         # Store email in database
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         received_at = datetime.now(timezone.utc).isoformat()
         
         cursor.execute('''
-            INSERT INTO received_emails (to_email, from_email, subject, html, text, received_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (to_email, from_email, subject, html, text, received_at))
+            INSERT INTO received_emails (to_email, from_email, subject, html, text, raw, received_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (to_email, from_email, subject, html, text, raw, received_at))
         
         conn.commit()
         conn.close()
