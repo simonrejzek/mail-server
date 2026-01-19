@@ -18,7 +18,8 @@ from flask_limiter.util import get_remote_address # Added
 
 load_dotenv()
 
-app = Flask(__name__)
+APP_ROOT = Path(__file__).resolve().parent
+app = Flask(__name__, template_folder=str(APP_ROOT / 'templates'))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = app.logger
