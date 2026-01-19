@@ -592,7 +592,7 @@ default_rate_limit = os.getenv("RATE_LIMIT_DEFAULT", "60 per minute")
 @app.route('/portal')
 def portal_home():
     domain_name = os.getenv('DOMAIN_NAME', 'disctools.store')
-    return render_template('portal.html', domain_name=domain_name, portal_password=PORTAL_PASSWORD)
+    return render_template('portal.html', domain_name=domain_name)
 
 @app.route('/portal/api/generate', methods=['POST'])
 @limiter.limit(generate_rate_limit)
