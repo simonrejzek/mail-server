@@ -1121,6 +1121,14 @@
       el.viewerFrame.srcdoc = buildEmailSrcdoc({ text: 'Select a message to preview.' });
       setActiveInbox('');
 
+      const params = new URLSearchParams(window.location.search || '');
+      const requested = (params.get('email') || params.get('inbox') || '').trim();
+      if (requested) {
+        const normalized = requested.includes('@') ? requested : `${requested}@${domain}`;
+        setActiveInbox(normalized);
+        state.selectedId = null;
+      }
+
       const stored = localStorage.getItem('portalPassword');
       if (stored) {
         state.portalPassword = stored;

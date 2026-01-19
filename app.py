@@ -636,12 +636,22 @@ generate_rate_limit = os.getenv("RATE_LIMIT_GENERATE", "20 per day")
 default_rate_limit = os.getenv("RATE_LIMIT_DEFAULT", "60 per minute")
 
 @app.route('/')
+@app.route('/mail')
+@app.route('/mail/')
+def home_page():
+    domain_name = os.getenv('DOMAIN_NAME', 'disctools.store')
+    return render_template('home.html', domain_name=domain_name)
+
 @app.route('/portal')
+@app.route('/portal/')
+@app.route('/mail/portal')
+@app.route('/mail/portal/')
 def portal_home():
     domain_name = os.getenv('DOMAIN_NAME', 'disctools.store')
     return render_template('portal.html', domain_name=domain_name)
 
 @app.route('/portal/api/generate', methods=['POST'])
+@app.route('/mail/portal/api/generate', methods=['POST'])
 @limiter.limit(generate_rate_limit)
 @require_portal_password
 def portal_generate_email():
@@ -657,6 +667,7 @@ def portal_generate_email():
     return jsonify({'error': message}), status_code
 
 @app.route('/portal/api/addresses', methods=['GET'])
+@app.route('/mail/portal/api/addresses', methods=['GET'])
 @limiter.limit(default_rate_limit)
 @require_portal_password
 def portal_list_addresses():
@@ -685,6 +696,7 @@ def portal_list_addresses():
         if conn: conn.close()
 
 @app.route('/portal/api/addresses/<path:email_to_remove>', methods=['DELETE'])
+@app.route('/mail/portal/api/addresses/<path:email_to_remove>', methods=['DELETE'])
 @limiter.limit(default_rate_limit)
 @require_portal_password
 def portal_remove_address(email_to_remove):
@@ -692,6 +704,7 @@ def portal_remove_address(email_to_remove):
     return jsonify(response_body), status_code
 
 @app.route('/portal/api/inbox', methods=['GET'])
+@app.route('/mail/portal/api/inbox', methods=['GET'])
 @limiter.limit(default_rate_limit)
 @require_portal_password
 def portal_inbox():
@@ -791,6 +804,9 @@ def remove_email_route(email_to_remove):
 
 
 @app.route('/webhook/inbound', methods=['POST'])
+@app.route('/webhook/inbound/', methods=['POST'])
+@app.route('/mail/webhook/inbound', methods=['POST'])
+@app.route('/mail/webhook/inbound/', methods=['POST'])
 @require_api_password
 def inbound_email_webhook():
     """
@@ -903,6 +919,9 @@ def get_emails(email_address):
 
 
 @app.route('/health', methods=['GET'])
+@app.route('/health/', methods=['GET'])
+@app.route('/mail/health', methods=['GET'])
+@app.route('/mail/health/', methods=['GET'])
 @limiter.limit(default_rate_limit)
 def health_check():
     """Enhanced health check endpoint."""
