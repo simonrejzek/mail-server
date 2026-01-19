@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-p8f8HSl3Ko3R6U02zszbmWzxubUANe0yoylZ1UlCT3VkOITkkpFmS6r30YIOCwVDDDeIZPAKq6pQYdZ4Yx3YgA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <style>
     :root {
       --bg: #0b0c12;
@@ -643,13 +643,13 @@
 
     function tryExtractPlainTextFromRaw(raw) {
       if (!raw) return '';
-      const textMatch = raw.match(/Content-Type:\\s*text\\/plain[\\s\\S]*?\\r?\\n\\r?\\n([\\s\\S]*?)(?:\\r?\\n--|\\r?\\nContent-Type:|$)/i);
+      const textMatch = raw.match(/Content-Type:\s*text\/plain[\s\S]*?\r?\n\r?\n([\s\S]*?)(?:\r?\n--|\r?\nContent-Type:|$)/i);
       if (textMatch && textMatch[1]) {
         return textMatch[1].trim();
       }
-      const parts = raw.split(/\\r?\\n\\r?\\n/);
+      const parts = raw.split(/\r?\n\r?\n/);
       if (parts.length > 1) {
-        return parts.slice(1).join('\\n\\n').trim();
+        return parts.slice(1).join('\n\n').trim();
       }
       return raw.trim();
     }
@@ -670,7 +670,7 @@
       }
 
       if (html) {
-        if (/<html[\\s>]/i.test(html)) {
+        if (/<html[\s>]/i.test(html)) {
           return html;
         }
         return `<!doctype html><html><head><meta charset="utf-8"><style>${baseCss}</style></head><body>${html}</body></html>`;
