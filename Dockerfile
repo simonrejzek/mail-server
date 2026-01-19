@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.tx
 
 # Copy the rest of the application code into the container
 COPY app.py .
+COPY templates ./templates
 COPY .env.example .
 
 # Make port 6020 available
